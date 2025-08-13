@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dokumentasi Ulangan</title>
+    <style>
+      :root {
+        --bg-color: #f4f4f4;
+        --text-color: #000;
+        --card-bg: #fff;
+        --caption-bg: #222;
+        --caption-text: #fff;
+      }
+      body.dark {
+        --bg-color: #121212;
+        --text-color: #fff;
+        --card-bg: #1e1e1e;
+        --caption-bg: #333;
+        --caption-text: #fff;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        text-align: center;
+        margin: 0;
+        padding: 20px;
+        transition: background 0.3s, color 0.3s;
+      }
+      h1 {
+        margin-bottom: 10px;
+      }
+      .top-bar {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+      input[type="text"] {
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      button {
+        padding: 6px 10px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #007bff;
+        color: white;
+      }
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        max-width: 1200px;
+        margin: auto;
+      }
+      .card {
+        background: var(--card-bg);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+      }
+      .card:hover {
+        transform: scale(1.03);
+      }
+      .card img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .caption {
+        padding: 10px;
+        background-color: var(--caption-bg);
+        color: var(--caption-text);
+        font-size: 14px;
+      }
+
+      /* Loading Spinner */
+      .spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid #ccc;
+        border-top: 3px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        padding-top: 50px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        overflow: hidden;
+      }
+      .modal-content {
+        margin: auto;
+        display: block;
+        max-width: 90%;
+        max-height: 80vh;
+        transition: transform 0.2s ease;
+      }
+      .modal-caption {
+        color: #ccc;
+        text-align: center;
+        padding: 10px;
+      }
+      .close,
+      .prev,
+      .next,
+      .download {
+        position: absolute;
+        top: 15px;
+        color: white;
+        font-size: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 6px 10px;
+        border-radius: 5px;
+      }
+      .close {
+        right: 30px;
+      }
+      .download {
+        right: 80px;
+      }
+      .prev {
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 40px;
+      }
+      .next {
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 40px;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 18px;
+        }
+        .caption {
+          font-size: 12px;
+        }
+        .modal-content {
+          max-width: 95%;
+          max-height: 70vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Dokumentasi Ulangan</h1>
+    <div class="top-bar">
+      <input type="text" id="searchInput" placeholder="Cari nomor..." />
+      <button id="toggleTheme">Dark/Light</button>
+    </div>
+
+    <div id="spinner" class="spinner"></div>
+    <div class="gallery" id="gallery" style="display: none"></div>
+
+    <!-- Modal Zoom -->
+    <div id="myModal" class="modal">
+      <span class="close">&times;</span>
+      <span class="download">&#x2B07;</span>
+      <span class="prev">&#10094;</span>
+      <span class="next">&#10095;</span>
+      <img class="modal-content" id="imgModal" />
+      <div class="modal-caption" id="caption"></div>
+    </div>
+
+    <script>
+      const gallery = document.getElementById("gallery");
+      const spinner = document.getElementById("spinner");
+      const totalImages = 20;
+      const imageFormat = "png";
+      let currentIndex = 0;
+
+      // Load images
+      let loadedCount = 0;
+      for (let i = 1; i <= totalImages; i++) {
+        const card = document.createElement("div");
+        card.className = "card";
+        const img = document.createElement("img");
+        img.src = `No${i}.${imageFormat}`;
+        img.alt = `Nomor ${i}`;
+        img.onload = () => {
+          loadedCount++;
+          if (loadedCount === totalImages) {
+            spinner.style.display = "none";
+            gallery.style.display = "grid";
+          }
+        };
+        const caption = document.createElement("div");
+        caption.className = "caption";
+        caption.textContent = `Nomor ${i}`;
+        card.appendChild(img);
+        card.appendChild(caption);
+        gallery.appendChild(card);
+      }
+
+      // Modal logic
+      const modal = document.getElementById("myModal");
+      const modalImg = document.getElementById("imgModal");
+      const captionText = document.getElementById("caption");
+      const closeBtn = document.querySelector(".close");
+      const downloadBtn = document.querySelector(".download");
+      const prevBtn = document.querySelector(".prev");
+      const nextBtn = document.querySelector(".next");
+
+      document.querySelectorAll(".card img").forEach((img, index) => {
+        img.addEventListener("click", function () {
+          currentIndex = index;
+          openModal();
+        });
+      });
+
+      function openModal() {
+        const img = document.querySelectorAll(".card img")[currentIndex];
+        modal.style.display = "block";
+        modalImg.src = img.src;
+        captionText.innerHTML = img.alt;
+        downloadBtn.onclick = () => {
+          const a = document.createElement("a");
+          a.href = img.src;
+          a.download = img.alt;
+          a.click();
+        };
+      }
+      closeBtn.onclick = () => (modal.style.display = "none");
+      prevBtn.onclick = () => {
+        currentIndex = (currentIndex - 1 + totalImages) % totalImages;
+        openModal();
+      };
+      nextBtn.onclick = () => {
+        currentIndex = (currentIndex + 1) % totalImages;
+        openModal();
+      };
+      window.onclick = (e) => {
+        if (e.target == modal) modal.style.display = "none";
+      };
+
+      // Zoom & drag
+      let scale = 1,
+        originX = 0,
+        originY = 0;
+      modalImg.onwheel = (e) => {
+        e.preventDefault();
+        scale += e.deltaY * -0.001;
+        scale = Math.min(Math.max(1, scale), 3);
+        modalImg.style.transform = `scale(${scale}) translate(${originX}px, ${originY}px)`;
+      };
+      let isDragging = false,
+        startX,
+        startY;
+      modalImg.onmousedown = (e) => {
+        isDragging = true;
+        startX = e.pageX - originX;
+        startY = e.pageY - originY;
+      };
+      modalImg.onmouseup = () => (isDragging = false);
+      modalImg.onmouseleave = () => (isDragging = false);
+      modalImg.onmousemove = (e) => {
+        if (!isDragging) return;
+        originX = e.pageX - startX;
+        originY = e.pageY - startY;
+        modalImg.style.transform = `scale(${scale}) translate(${originX}px, ${originY}px)`;
+      };
+
+      // Search filter
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function () {
+          const term = this.value.toLowerCase();
+          document.querySelectorAll(".card").forEach((card) => {
+            const caption = card
+              .querySelector(".caption")
+              .textContent.toLowerCase();
+            card.style.display = caption.includes(term) ? "block" : "none";
+          });
+        });
+
+      // Dark/Light toggle
+      document.getElementById("toggleTheme").addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+      });
+    </script>
+  </body>
+</html>
